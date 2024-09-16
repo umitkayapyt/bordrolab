@@ -1,0 +1,756 @@
+{% load static %}
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Online maaş hesaplama aracı ile bordro işlemlerinizi hızlıca gerçekleştirin.">
+    <meta name="keywords" content="maaş hesaplama, bordro, online hesaplama, sgk maliyetleri, sgk indirimler, arge bordro, maden ve yeraltı bordro, arge destekleri, sigorta prim teşvikleri">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href= "{% static 'css/style.css' %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    <script type="module" src="{% static 'js/initialize.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+</head>
+<body style="margin: 0px; padding: 0px; padding-right: 3px; padding-left: 3px;">
+  <div class="container-{breakpoint}-fluid:">
+
+    <div class="header-container">
+      <a href="{% url 'index' %}">
+        <img src="{% static 'img/heca-arma.jpg' %}" alt="Hekatonkheires" />
+      </a>
+      <h2 style="color: rgba(158, 107, 13, 0.671); padding-right: 6px">
+        {% block header %}Maaş Hesaplama{% endblock %}
+      </h2>
+      <div></div>
+    </div>
+
+    <form class="salaryForm" method="POST" action="{% block form_action %}{% endblock %}" id="django-path" data-path="{{ request.path }}">
+      {% csrf_token %}
+
+
+      <div class="Hesaplama_Parametreleri" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div class="select-container" style="display: inline-block; vertical-align: top; margin-bottom: 2px;">
+          <label for="dynamic-select-yil">Yıl</label>
+          <select class="form-select" id="dynamic-select-yil" name="year">
+            {% for value, label in select_listesi.fields.year.choices %}
+              <option value="{{ value }}" {% if value == year %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="select-container" style="display: inline-block; vertical-align: top; margin-bottom: 6px;">
+          <label for="dynamic-select-ucret">Ücret Tipi</label>
+          <select class="form-select" id="dynamic-select-ucret" name="ucretType">
+            {% for value, label in select_listesi.fields.ucretType.choices %}
+              <option value="{{ value }}" {% if value == ucretType %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="select-container" style="display: inline-block; vertical-align: top; margin-bottom: 6px;">
+          <label for="dynamic-select-statu">Statü</label> 
+          <select class="form-select" id="dynamic-select-statu" name="statu">
+            {% for value, label in select_listesi.fields.statu.choices %}
+              <option value="{{ value }}" {% if value == statu %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="select-container" style="display: inline-block; vertical-align: top; margin-bottom: 6px;">
+          <label for="dynamic-select-kanun">Kanun</label>
+          <select class="form-select" id="dynamic-select-kanun" name="kanun">
+            {% for value, label in select_listesi.fields.kanun.choices %}
+              <option value="{{ value }}" {% if value == kanun %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div class="select-container" style="display: inline-block; vertical-align: top; margin-bottom: 6px;">
+          <label for="dynamic-select-engelli">Engelli Durumu</label>
+          <select class="form-select" id="dynamic-select-engelli" name="engelli_durumu">
+            {% for value, label in select_listesi.fields.engelli_durumu.choices %}
+              <option value="{{ value }}" {% if value == engelli_durumu %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="select-container" style="display: inline-block; vertical-align: top; margin-bottom: 6px;">
+          <label for="dynamic-select-egitim">Eğitim Durumu</label>
+          <select class="form-select" id="dynamic-select-egitim" name="egitim_durumu">
+            {% for value, label in select_listesi.fields.egitim_durumu.choices %}
+              <option value="{{ value }}" {% if value == egitim_durumu %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="select-container" style="display: inline-block; vertical-align: top; margin-bottom: 6px;">
+          <label for="dynamic-select-agi" style="margin-right: 10px; padding-left: 5px">AGİ
+            <label class="form-check-label" style="padding-top: 1px;" for="flexSwitchCheckChecked_agi_dahil">Dahil</label>
+            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked_agi_dahil" name="agi_dahil" style="margin-left: 5px;" {% if agi_dahil %} checked {% endif %}>
+          </label>
+          <select class="form-select" id="dynamic-select-agi" name="AGI_durumu" style="width: auto;">
+            {% for value, label in select_listesi.fields.AGI_durumu.choices %}
+              <option value="{{ value }}" {% if value == AGI_durumu %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {% block excel_indir %}{% endblock excel_indir %}
+      </div>
+
+      <div class="table-responsive table-container">
+        <div style="overflow-x: auto;">
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col" class="baslik" style="width: 30px;" >Aylar</th>
+                <th scope="col" class="baslik wide-column" style="width: 75px;">Ücret</th>
+                <th scope="col" class="baslik wide-column-p" style="width: 63px;">
+                  <span style="display: block;">Prim</span>
+                  <span>İkramiye</span>
+                </th>
+                <th scope="col" class="baslik narrow-column" style="width: 23px;">
+                  <span style="display: block;">FM</span>
+                  <span style="font-size: 10px;">Saat</span>
+                </th>
+                <th scope="col" class="baslik narrow-column" style="width: 23px;">
+                  <span style="display: block; display: flex; flex-direction: column; justify-content: center; align-items: center;">UBGT</span>
+                  <span style="font-size: 10px;">Saat</span>
+                </th>
+                <th scope="col" class="baslik narrow-column" style="width: 23px;">
+                  <span style="display: block;">SGK</span>
+                  <span style="font-size: 10px;">Gün</span>
+                </th>
+                <th scope="col" class="baslik narrow-column" style="width: 23px;">
+                  <span id='yearalti_arge' style="display: block; display: flex; flex-direction: column; justify-content: center; align-items: center;">ARGE</span>
+                  <span style="font-size: 10px;">Gün</span>
+                </th>
+                <th scope="col" class="baslik wide-column" style="width: 63px;">
+                  <span style="display: block;">Geçmiş</span>
+                  <span>KGVM</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 55px;">
+                  <span style="display: block;">Brüt</span>
+                  <span>Toplam</span>
+                </th>
+                <th scope="col" class="baslik daily-brut" style="width: 42px;">
+                  <span style="display: block;">Günlük</span>
+                  <span>Brüt</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 55px;">
+                  <span style="display: block;">SGK</span>
+                  <span>Matrah</span></th>
+                <th scope="col" class="baslik" style="width: 45px;">
+                  <span style="display: block;">İşçi</span>
+                  <span>SGK</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 40px;">
+                  <span style="display: block;">İşçi</span>
+                  <span style="font-size: 10px;">İşsizlik</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 42px;">
+                  <span style="display: block;">Damga</span>
+                  <span>Vergisi</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 55px;">KGVM</th>
+                <th scope="col" class="baslik" style="width: 55px;">GVM</th>
+                <th scope="col" class="baslik" style="width: 55px;">
+                  <span style="display: block;">Gelir</span>
+                  <span>Vergisi</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 57px;">
+                  <span style="display: block;">Net</span>
+                  <span>Ücret</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 27px;">AGİ</th>
+                <th scope="col" class="baslik" style="width: 57px;">MAAŞ</th>
+                <th scope="col" class="baslik" style="width: 43px;">
+                  <span style="display: block;">İşveren</span>
+                  <span>SGK</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 35px;">
+                  <span style="display: block;">İşveren</span>
+                  <span style="font-size: 10px;">İşsizlik</span>
+                </th>
+                <th scope="col" class="baslik" style="width: 56px;">
+                  <span style="display: block;">Toplam</span>
+                  <span>Maliyet</span>
+                </th>
+                {% block basliklar %}{% endblock basliklar %}
+              </tr>
+
+            </thead>
+            <tbody id="wage-params-output">
+              {% block table_rows %}
+              {% endblock %}
+              <tr style="border-top: 5px solid #cccccc;">
+                <td scope="row" class="month" style="font-size: 8px;">TOPLAM</td>
+                <td class="total">
+                  <span class="grand_total" id="salary_total" style="font-size: 11px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="bonus_total" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="shift_total" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="UBGT_total" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="day_total" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="arge_day_total" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="gecmis_KGVM_total" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Brut_Top_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="">-</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="SGK_Matrah_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Isci_SGK_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Isci_Issizlik_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Damga_Vergisi_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="KGVM_total">-</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="GVM_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="GV_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Net_Salary_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="AGI_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Maas_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Isveren_SGK_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Isveren_Issizlik_total">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_total" id="Toplam_Maliyet_total">0,00</span>
+                </td>
+                {% block grand_total_rows %}
+                {% endblock %}
+              </tr>
+              <tr style="border-bottom: 5px solid #cccccc;">
+                <td scope="row" class="month" style="font-size: 8px;">ORTALAMA</td>
+                <td class="total">
+                  <span class="grand_mean" id="salary_mean" style="font-size: 11px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="bonus_mean" style="font-size: 10px;">0,00</span
+                    ></td>
+                <td class="total">
+                  <span class="grand_mean" id="shift_mean" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="UBGT_mean" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="day_mean" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="arge_day_mean" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="gecmis_KGVM_mean" style="font-size: 10px;">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Brut_Top_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="">-</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="SGK_Matrah_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Isci_SGK_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Isci_Issizlik_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Damga_Vergisi_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="KGVM_mean">-</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="GVM_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="GV_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Net_Salary_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="AGI_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Maas_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Isveren_SGK_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Isveren_Issizlik_mean">0,00</span>
+                </td>
+                <td class="total">
+                  <span class="grand_mean" id="Toplam_Maliyet_mean">0,00</span>
+                </td>
+                {% block grand_mean_rows %}
+                {% endblock %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+          <div style="display: block; margin-top: 1px;">
+            <div class="form-check form-switch custom-switch" style="margin-top: 8px;">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked_aylar" checked>
+              <label class="form-check-label" for="flexSwitchCheckChecked_aylar">
+                Girilen değerleri sonraki Aylara uygula
+              </label>
+            </div>
+
+            <div class="form-check form-switch custom-switch">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked_prim" name="net_sabit" {% if net_sabit %} checked {% endif %}>
+              <label class="form-check-label" style="padding-top: 1px;" for="flexSwitchCheckChecked_prim" >
+                SGK Matrah devirlerinde Net Ücretler sabit kalsın. (Prim / İkramiye ödemeleri için)
+              </label>
+            </div>
+
+            <div class="form-check form-switch custom-switch">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked_linyit" name="linyit" {% if linyit %} checked {% endif %}>
+              <label class="form-check-label" style="padding-top: 1px;" for="flexSwitchCheckChecked_linyit">
+                Linyit veya Taşkömürü Ocağı çalışanı
+              </label>
+            </div>
+
+            <div class="form-check form-switch custom-switch">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked_vergi_yok" name="vergi_yok" {% if vergi_yok %} checked {% endif %}>
+              <label class="form-check-label" style="padding-top: 1px;" for="flexSwitchCheckChecked_vergi_yok">
+                Vergi Yok (Vergi Hesaplamaz)
+              </label>
+            </div>
+          </div>
+
+          <div class="button-container" style="margin-left: 220px; padding-left: 20px">
+            <button type="submit">Hesapla</button>
+          </div>
+
+          <div style="position: absolute; right: 20px; top: 23px;">
+            <a href="https://www.linkedin.com/in/ümitkaya" target="_blank" style="text-decoration: none;">
+              <button type="button" style="background-color: rgba(158, 107, 13, 0.671); color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-size: 13px;"> 
+                 İletişim
+              </button>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <script type="module">
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const yearSelect = document.getElementById('dynamic-select-yil');
+      const agiCheckbox = document.getElementById('flexSwitchCheckChecked_agi_dahil');
+      const agiSelect = document.getElementById('dynamic-select-agi');
+
+      // Fonksiyon: Yıl seçimine göre AGİ seçeneklerini aktif/pasif hale getirme
+      function updateAgiStatus() {
+        const selectedYear = parseInt(yearSelect.value); // Seçilen yılı al
+
+        if (selectedYear >= 2008 && selectedYear <= 2021) {
+          agiCheckbox.disabled = false; // AGİ Dahil Checkbox aktif
+          agiSelect.disabled = false; // AGİ Select aktif
+
+          // İlk indexi "BEKAR" olarak ayarla
+          agiSelect.options[0].value = "BEKAR";
+          agiSelect.options[0].text = "BEKAR";
+        } else if (selectedYear > 2021) {
+          agiCheckbox.disabled = true; // AGİ Dahil Checkbox pasif
+          agiSelect.disabled = true; // AGİ Select pasif
+
+          // İlk indexi "GVK 193/32. md" olarak ayarla
+          agiSelect.selectedIndex = 0;
+          agiSelect.options[0].value = "GVK 193/32. md";
+          agiSelect.options[0].text = "GVK 193/32. md";
+
+          // AGİ Dahil checkbox'ı seçiliyse kaldır
+          if (agiCheckbox.checked) {
+            agiCheckbox.checked = false;
+          }
+        } else {
+          agiCheckbox.disabled = true; // AGİ Dahil Checkbox pasif
+          agiSelect.disabled = true; // AGİ Select pasif
+
+          // İlk indexi "BEKAR" olarak ayarla
+          agiSelect.options[0].value = "BEKAR";
+          agiSelect.options[0].text = "BEKAR";
+        }
+      }
+
+      // Sayfa yüklendiğinde başlangıç durumunu kontrol et
+      updateAgiStatus();
+
+      // Yıl seçimi değiştiğinde sınırlamayı kontrol et
+      yearSelect.addEventListener('change', updateAgiStatus);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const statuSelect = document.getElementById('dynamic-select-statu');
+      const kanunSelect = document.getElementById('dynamic-select-kanun');
+  
+      const allKanunOptions = [
+        '00000', '05510', '14857', '03294', '06111', '05746', '04691',
+        '17103', '27103', '16322', '26322', '06486', '15921', '06645', '55225', '25225', '02828'
+      ];
+  
+      const emekliKanunOptions = ['00000', '15510'];
+      const madenYerAltiKanunOptions = [
+        '00000', '05510', '15510', '14857', '03294', '06111', '17103', '27103',
+        '16322', '26322', '06486', '15921', '06645', '55225', '25225', '02828'
+      ];
+      
+      // Statüye göre kanun seçeneklerini güncelleme
+      statuSelect.addEventListener('change', function () {
+        const selectedStatu = statuSelect.value;
+        const selectedKanun = kanunSelect.value; // Mevcut seçili kanun değerini sakla
+  
+        // Yalnızca kanun select alanını temizle, diğerlerini değil!
+        while (kanunSelect.firstChild) {
+          kanunSelect.removeChild(kanunSelect.firstChild);
+        }
+  
+        if (selectedStatu === 'Emekli') {
+          updateKanunOptions(emekliKanunOptions, selectedKanun);
+        } else if (selectedStatu === 'Maden ve Yeraltı') {
+          updateKanunOptions(madenYerAltiKanunOptions, selectedKanun);
+        } else {
+          updateKanunOptions(allKanunOptions, selectedKanun);  // Normal statüde tüm seçenekler
+        }
+      });
+  
+      // Kanuna göre statü seçeneklerini güncelleme
+      kanunSelect.addEventListener('change', function () {
+        const selectedKanun = kanunSelect.value;
+        const selectedStatu = statuSelect.value; // Mevcut seçili statü değerini sakla
+  
+        // Statü seçeneklerini temizlemeden sadece güncelle
+        resetStatuOptions(selectedStatu);
+  
+        if (selectedKanun === '15510') {
+          limitStatuOptions(['Emekli', 'Maden ve Yeraltı'], selectedStatu);
+        } else if (selectedKanun === '05746' || selectedKanun === '04691') {
+          limitStatuOptions(['Normal'], selectedStatu);
+          disableOtherStatues();  // Diğer statüleri devre dışı bırak
+          checkAndEnableStatues(); // Shift ve UBGT kontrolü yaparak durumu güncelle
+        } else if (['05510', '14857', '03294', '06111', '17103', '27103', '16322', '26322', '06486', '15921', '06645', '55225', '25225', '02828'].includes(selectedKanun)) {
+          limitStatuOptions(['Normal', 'Maden ve Yeraltı'], selectedStatu);
+        }
+      });
+  
+      // Kanun seçeneklerini güncelleyen fonksiyon
+      function updateKanunOptions(options, selectedKanun) {
+        options.forEach(function (option) {
+          const opt = document.createElement('option');
+          opt.value = option;
+          opt.innerHTML = option;
+          kanunSelect.appendChild(opt);
+        });
+  
+        // Eğer kanun seçiliyse, seçili olarak göster
+        if (options.includes(selectedKanun)) {
+          kanunSelect.value = selectedKanun;
+        }
+      }
+  
+      // Statü seçeneklerini temizleyip varsayılan seçeneklerle doldurur
+      function resetStatuOptions(selectedStatu) {
+        statuSelect.innerHTML = '';  // Seçenekleri temizle
+        const defaultStatues = ['Normal', 'Emekli', 'Maden ve Yeraltı'];
+        defaultStatues.forEach(function (statu) {
+          const opt = document.createElement('option');
+          opt.value = statu;
+          opt.innerHTML = statu;
+          statuSelect.appendChild(opt);
+        });
+  
+        // Eğer statü seçiliyse, onu seçili olarak göster
+        if (defaultStatues.includes(selectedStatu)) {
+          statuSelect.value = selectedStatu;
+        }
+      }
+  
+      // Statü seçeneklerini kısıtlayan fonksiyon
+      function limitStatuOptions(allowedStatues, selectedStatu) {
+        statuSelect.innerHTML = '';  // Önce statü seçeneklerini temizle
+        allowedStatues.forEach(function (statu) {
+          const opt = document.createElement('option');
+          opt.value = statu;
+          opt.innerHTML = statu;
+          statuSelect.appendChild(opt);
+        });
+  
+        // Eğer statü seçiliyse, seçili olarak göster
+        if (allowedStatues.includes(selectedStatu)) {
+          statuSelect.value = selectedStatu;
+        }
+      }
+  
+      // Diğer statüleri devre dışı bırakma fonksiyonu
+      function disableOtherStatues() {
+        const options = statuSelect.options;
+        for (let i = 0; i < options.length; i++) {
+          if (options[i].value !== 'Normal') {
+            options[i].disabled = true;
+          }
+        }
+      }
+  
+      // Shift ve UBGT inputlarını kontrol eden ve gerekirse etkinleştiren fonksiyon
+      function checkAndEnableStatues() {
+        let allDisabled = true;
+  
+        // Tüm shift ve UBGT inputlarını kontrol et (1'den 12'ye kadar)
+        for (let i = 1; i <= 12; i++) {
+          const shiftInput = document.querySelector(`input[name="shift_${i}"]`);
+          const ubgtInput = document.querySelector(`input[name="UBGT_${i}"]`);
+  
+          // Eğer herhangi bir input etkinse, disabled olmadığını belirt ve döngüyü sonlandır
+          if (shiftInput && ubgtInput && (!shiftInput.disabled || !ubgtInput.disabled)) {
+            allDisabled = false; 
+            break;
+          }
+        }
+  
+        // Eğer tüm inputlar disabled ise, hepsini etkin hale getir
+        if (allDisabled) {
+          for (let i = 1; i <= 12; i++) {
+            const shiftInput = document.querySelector(`input[name="shift_${i}"]`);
+            const ubgtInput = document.querySelector(`input[name="UBGT_${i}"]`);
+  
+            // Eğer inputlar mevcutsa, disabled durumunu kaldır
+            if (shiftInput) shiftInput.disabled = false;
+            if (ubgtInput) ubgtInput.disabled = false;
+          }
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+      function formatValueToNumber(value) {
+        return parseFloat(value.replace(/\./g, '').replace(',', '.'));
+      }
+  
+      function formatNumberToValue(number) {
+        return number.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      
+      function formatNumberToIntegerValue(number) {
+        return Math.round(number).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      }
+  
+      function toplamVeOrtalamaHesapla() {
+        const idList = [
+          'salary', 'bonus', 'shift', 'UBGT', 'day', 'arge_day', 'gecmis_KGVM',
+          'Brut_Top', 
+          'SGK_Matrah', 'Isci_SGK', 'Isci_Issizlik', 
+          'Damga_Vergisi', 'GVM', 'GV', 'Net_Salary', 'AGI', 'Maas', 
+          'Isveren_SGK', 'Isveren_Issizlik', 'Toplam_Maliyet', 'Normal_Maliyet', 
+          'Hazine_İndirimi', 'Hazine_İndirimi_Sonrasi_Maliyet', 'Odenecek_Vergi', 
+          'Normal_SGK_Odenecek', 'Indirim_Sonrasi_SGK_Odenecek', 'GV_Istisna', 
+          'DV_Istisna'
+        ];
+  
+          // Ondalıksız işlem yapılacak id'ler listesi
+        const integerIdList = ['shift', 'UBGT', 'day', 'arge_day'];
+  
+        idList.forEach(id => {
+          let toplam = 0;
+          let count = 0;
+
+          // Her sütundaki input değerlerini hesapla
+          const inputs = document.querySelectorAll(`input[name^="${id}_"]`);
+          inputs.forEach(input => {
+            let deger = formatValueToNumber(input.value);
+            if (!isNaN(deger)) {
+              toplam += deger;
+              count++;
+            }
+          });
+
+          // Her sütundaki span elemanlarındaki değerleri hesapla
+          const elements = document.getElementsByClassName(id);
+          for (let i = 0; i < elements.length; i++) {
+            let deger = formatValueToNumber(elements[i].innerText);
+            if (!isNaN(deger)) {
+              toplam += deger;
+              count++;
+            }
+          }
+
+          // Hesaplanan toplamı ilgili "_total" id'li alana yazdır
+          let toplamElement = document.getElementById(`${id}_total`);
+          if (toplamElement) {
+            if (integerIdList.includes(id)) {
+              toplamElement.innerText = formatNumberToIntegerValue(!isNaN(toplam) ? toplam : 0);
+            } else {
+              toplamElement.innerText = formatNumberToValue(!isNaN(toplam) ? toplam : 0);
+            }
+          } 
+            
+            // Hesaplanan ortalamayı ilgili "_mean" id'li alana yazdır
+          let ortalama = toplam / count;
+          if (isNaN(ortalama) || !isFinite(ortalama)) {
+            ortalama = 0;
+          }
+          let ortalamaElement = document.getElementById(`${id}_mean`);
+          if (ortalamaElement) {
+            if (integerIdList.includes(id)) {
+              ortalamaElement.innerText = formatNumberToIntegerValue(ortalama);
+            } else {
+              ortalamaElement.innerText = formatNumberToValue(ortalama);
+            }
+          }
+        });
+      }
+  
+      // Sayfa yüklendiğinde ve her input değişikliğinde hesaplamayı çalıştır
+      toplamVeOrtalamaHesapla();
+      
+      document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', toplamVeOrtalamaHesapla);
+      });
+  
+      // İlgili select elemanları değiştiğinde hesaplamayı çalıştır
+      document.querySelectorAll('#dynamic-select-statu, #dynamic-select-kanun').forEach(select => {
+        select.addEventListener('change', toplamVeOrtalamaHesapla);
+      });
+    });
+   
+    document.addEventListener('DOMContentLoaded', function() {
+      function exportToExcel() {
+        // Form verilerini toplamak
+        var formData = {
+          "Yıl": document.getElementById('dynamic-select-yil').value,
+          "Ücret Tipi": document.getElementById('dynamic-select-ucret').value,
+          "Statü": document.getElementById('dynamic-select-statu').value,
+          "Kanun": document.getElementById('dynamic-select-kanun').value,
+          "Engelli Durumu": document.getElementById('dynamic-select-engelli').value,
+          "Eğitim Durumu": document.getElementById('dynamic-select-egitim').value,
+          "AGİ Durumu": document.getElementById('dynamic-select-agi').value,
+        };
+    
+        // Her ay için ayrı ayrı verileri topla
+        var monthData = [];
+        for (var i = 1; i <= 12; i++) {
+          var month = {
+            "Ay": document.querySelector(`#wage-params-output tr:nth-child(${i}) td.month`).innerText,
+            "Ücret": document.querySelector(`input[name="salary_${i}"]`).value,
+            "Prim / İkramiye": document.querySelector(`input[name="bonus_${i}"]`).value,
+            "FM Saat": document.querySelector(`input[name="shift_${i}"]`).value,
+            "UBGT Saat": document.querySelector(`input[name="UBGT_${i}"]`).value,
+            "SGK Gün": document.querySelector(`input[name="day_${i}"]`).value,
+            "ARGE Gün": document.querySelector(`input[name="arge_day_${i}"]`).value,
+            "Geçmiş KGVM": document.querySelector(`input[name="gecmis_KGVM_${i}"]`).value,
+            "Brüt Toplam": document.getElementById(`Brut_Top_${i}`).innerText,
+            "Günlük Brüt": document.getElementById(`Gunluk_Brut_Ucrt_${i}`).innerText,
+            "SGK Matrah": document.getElementById(`SGK_Matrah_${i}`).innerText,
+            "İşçi SGK": document.getElementById(`Isci_SGK_${i}`).innerText,
+            "İşçi İşsizlik": document.getElementById(`Isci_Issizlik_${i}`).innerText,
+            "Damga Vergisi": document.getElementById(`Damga_Vergisi_${i}`).innerText,
+            "KGVM": document.getElementById(`KGVM_${i}`).innerText,
+            "GVM": document.getElementById(`GVM_${i}`).innerText,
+            "Gelir Vergisi": document.getElementById(`GV_${i}`).innerText,
+            "Net Ücret": document.getElementById(`Net_Salary_${i}`).innerText,
+            "AGİ": document.getElementById(`AGI_${i}`).innerText,
+            "MAAŞ": document.getElementById(`Maas_${i}`).innerText,
+            "İşveren SGK": document.getElementById(`Isveren_SGK_${i}`).innerText,
+            "İşveren İşsizlik": document.getElementById(`Isveren_Issizlik_${i}`).innerText,
+            "Toplam Maliyet": document.getElementById(`Toplam_Maliyet_${i}`).innerText,
+            "Normal Maliyet": document.getElementById(`Normal_Maliyet_${i}`).innerText,
+            "Hazine İndirimi": document.getElementById(`Hazine_İndirimi_${i}`).innerText,
+            "İndirimli Maliyet": document.getElementById(`Hazine_İndirimi_Sonrasi_Maliyet_${i}`).innerText,
+            "Ödenecek Vergi": document.getElementById(`Odenecek_Vergi_${i}`).innerText,
+            "Normal SGK Ödenecek": document.getElementById(`Normal_SGK_Odenecek_${i}`).innerText,
+            "İndirimli SGK Ödenecek": document.getElementById(`Indirim_Sonrasi_SGK_Odenecek_${i}`).innerText,
+            "İstisna GV": document.getElementById(`GV_Istisna_${i}`).innerText,
+            "İstisna DV": document.getElementById(`DV_Istisna_${i}`).innerText,
+            "ASG GVM": document.getElementById(`ASG_Gvm_${i}`).innerText,
+            "Kum ASG GV": document.getElementById(`Kum_ASG_GV_${i}`).innerText,
+            "2 Ay Önceki Devir SGK": document.getElementById(`2_Ay_Onceki_Devir_${i}`).innerText,
+            "1 Ay Önceki Devir SGK": document.getElementById(`1_Ay_Onceki_Devir_${i}`).innerText,
+          };
+          monthData.push(month);
+        }
+    
+        // Form ve ay verilerini birleştirmek
+        var data = [Object.keys(formData).concat(Object.keys(monthData[0]))]; // Başlıklar
+        for (var i = 0; i < 12; i++) {
+          data.push(Object.values(formData).concat(Object.values(monthData[i])));
+        }
+    
+        // Verileri bir tabloya dönüştürmek
+        var ws = XLSX.utils.aoa_to_sheet(data);
+    
+        // Yeni bir çalışma kitabı oluşturmak
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Form Data");
+        
+        var fileName = Object.values(formData).join('_') + ".xlsx";
+        // Excel dosyasını oluşturup indirmek
+        XLSX.writeFile(wb, fileName);
+      }
+      // Fonksiyonu global olarak tanımlayın
+      window.exportToExcel = exportToExcel;
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const hesaplaButton = document.querySelector('.button-container button[type="submit"]');
+  
+      // Sayfa yüklendiğinde butonu devre dışı bırak
+      hesaplaButton.disabled = true;
+  
+      // 1 saniye sonra butonu tekrar etkinleştir
+      setTimeout(function() {
+          hesaplaButton.disabled = false;
+      }, 1000); // 1000 milisaniye = 1 saniye
+    });
+
+  </script>    
+</body>
+</html>
