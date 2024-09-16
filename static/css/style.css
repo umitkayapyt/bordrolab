@@ -1,0 +1,424 @@
+/* Genel Ayarlar */
+/* Bu bölümde, sayfanın genel görünümünü ve yazı tipini ayarlıyoruz. 
+  Arka plan rengi ve gövdeye genel bir padding (boşluk) ekleniyor. */
+body {
+  font-family: 'Arial', sans-serif; /* Arial yazı tipi kullanılıyor */
+  background-color: #f8f9fa; /* Açık gri arka plan rengi */
+  padding: 10px; /* Gövdeye 10 piksel padding ekleniyor */
+}
+
+/* Container ve Genel Düzen */
+/* .container-fluid sınıfı, içeriğin merkezlenmesi ve padding eklenmesi için kullanılıyor. */
+.container-fluid {
+  margin: 0 auto; /* İçeriği ortalamak için margin 0 ayarlanıyor */
+  padding: 10px; /* İçeriğe 10 piksel padding ekleniyor */
+}
+
+/* Responsive Tablo */
+/* Tablo içeriği ekranı taşarsa yatay kaydırma ekleniyor. */
+.table-responsive {
+  overflow-x: auto; /* Yatay kaydırma çubuğu ekleniyor */
+}
+
+/* Tablo */
+/* Tablo genel stil ayarları burada yapılıyor. */
+.table {
+  width: 100%;  /* Tablo genişliği yüzde 100 olarak ayarlanıyor */
+  border-collapse: collapse; /* Kenar boşlukları kaldırılıyor, tek çizgi halinde görünüyor */
+  table-layout: fixed; /* Sütun genişlikleri auto */
+  font-size: 11px; /* Genel tablo yazı boyutu */
+  font-weight: bold; /* Kalın yazı stili */
+  border-collapse: collapse; /* Çizgilerin üst üste binmemesi için */
+}
+
+/* Tablo Başlıkları */
+/* Tablo başlık hücrelerinin stil ayarları yapılıyor. */
+.table th {
+  background-color: #007bff; /* Başlık arka plan rengi, mavi */
+  color: white; /* Başlık yazı rengi, beyaz */
+  font-family: 'Arial', sans-serif; /* Başlık yazı tipi */
+  font-size: 11px; /* Başlık yazı boyutu */
+  padding: 10px; /* Başlık hücrelerine padding ekleniyor */
+  text-align: center; /* Başlık metni ortalanıyor */
+  white-space: nowrap; /* Metin sarma özelliği kapatılıyor, tek satırda kalıyor */
+  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Başlık için üstte de çizgi ekleniyor */
+}
+
+/* Tablo hücreleri arasındaki dikey çizgileri belirginleştirme */
+.table th, .table td {
+  border-right: 1px solid #cccccc; /* Gri renkli ve 1px kalınlığında çizgi */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Daha hafif bir çizgi */
+  overflow: hidden; /* Taşan içerik gizlenecek */
+  text-overflow: ellipsis; /* İçerik uzun olursa üç nokta ile göster */
+  white-space: nowrap; /* Metin tek satırda kalacak */
+  overflow: hidden; /* Taşan içerik gizlenecek */
+  text-overflow: ellipsis; /* İçerik uzun olursa üç nokta ile göster */
+  white-space: nowrap; /* Metin tek satırda kalacak */
+}
+
+.table {
+  border-collapse: collapse; /* Çizgilerin üst üste binmemesi için */
+}
+
+.table th:last-child, .table td:last-child {
+  border-right: none; /* Son sütun için çizgiyi kaldır */
+}
+
+
+
+/* Özel başlıklar için stil */
+/* .baslik sınıfı ile ek stil verilmiş başlık hücreleri */
+.table th.baslik {
+  font-size: 12px; /* Başlık yazı boyutu biraz büyütülüyor */
+  font-weight: bold; /* Yazı kalınlığı artırılıyor */
+  border-bottom: 2px solid #0056b3; /* Alt çizgi ekleniyor */
+}
+
+/* Tablo Hücreleri */
+/* Tablo içeriği hücrelerinin stil ayarları yapılıyor. */
+.table td {
+  padding-right: 0px; /* Hücrelere padding ekleniyor */
+  padding-left: 0px;
+  padding-bottom: 4px;
+  padding-top: 4px;
+  text-align: center; /* Metin ortalanıyor */
+  vertical-align: middle; /* Metin dikeyde ortalanıyor */
+  font-size: 11.655px; /* Hücre yazı boyutu */
+}
+
+/* Bonus İçin Ortalanmış Hücreler */
+/* Bonus hücreleri için özel ortalama stili */
+.bonus-container {
+  text-align: center; /* Metin ortalanıyor */
+  vertical-align: middle; /* Dikey ortalama */
+}
+
+/* Bonus Inputları */
+/* Bonus için input alanları stilize ediliyor. */
+.bonus {
+  width: 30px; /* Genişlik 30 piksel */
+  margin: auto; /* Otomatik margin, ortalama */
+  text-align: center; /* Metin ortalanıyor */
+  display: block; /* Blok elemanı olarak görüntüleniyor */
+}
+
+/* Input Alanları */
+/* Tablo içindeki metin giriş alanları için stil ayarları */
+.table input[type="text"] {
+  width: auto; /* Varsayılan genişlik */
+  max-width: none; /* Maksimum genişlik sınırlaması kaldırıldı */
+  padding: 4px;
+  font-size: 12px; /* Giriş alanı yazı boyutu */
+  border: 1px solid #ccc; /* Kenar rengi gri */
+  font-weight: bold;
+  border-radius: 4px; /* Köşeler yuvarlatılıyor */
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; /* Geçiş animasyonu */
+}
+
+/* Input Alanı Odaklanma Durumu */
+/* Giriş alanına odaklanıldığında stil değişiklikleri */
+.table input[type="text"]:focus {
+  outline: none; /* Varsayılan kenar çizgisi kaldırılıyor */
+  border-color: #007bff; /* Kenar rengi maviye dönüyor */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Gölge ekleniyor */
+}
+
+/* Dar ve Geniş Sütunlar İçin Stil */
+/* Farklı sütun genişlikleri için stil tanımlamaları */
+.narrow-column {
+  width: 70px; /* Dar sütun genişliği */
+}
+
+.wide-column, .wide-column-p {
+  width: 100px; /* Geniş sütun genişliği */
+}
+
+/* Genel switch stili */
+.custom-switch {
+  margin-bottom: 10px; /* Alt boşluk */
+}
+
+/* Label stil */
+.form-check-label {
+  font-size: 12.5px; /* Yazı boyutu */
+  color: #333; /* Yazı rengi */
+  margin-left: 10px; /* Sol boşluk */
+}
+
+/* Checkbox stili */
+.form-check-input {
+  margin-top: 1px; /* Üst boşluk */
+  margin-bottom: 0px;
+}
+
+/* Label üzerine fare ile gelindiğinde (hover) efekt */
+.form-check-label:hover {
+  color: #007bff; /* Hover durumunda yazı rengi */
+}
+
+/* Disabled durumdaki checkbox stili */
+.form-check-input:disabled + .form-check-label {
+  color: #aaa; /* Disabled durumda yazı rengi */
+}
+
+/* Switch container */
+.form-check {
+  display: flex;
+  align-items: center;
+  padding-top: 0px;
+  margin-bottom: 2px;
+}
+
+.form-check-input:hover {
+  background-color: #e0e0e0; /* Hover sırasında arka plan rengini değiştirir */
+  border-color: #007bff; /* Hover sırasında kenar rengini değiştirir */
+  cursor: pointer; /* Hover sırasında işaretçiyi el simgesine dönüştürür */
+}
+.form-check-input:hover + .form-check-label {
+  color: #007bff; /* Hover sırasında etiket rengini değiştirir */
+  cursor: pointer; /* Hover sırasında işaretçiyi el simgesine dönüştürür */
+}
+
+.form-check-label:hover {
+  color: #0056b3; /* Hover sırasında etiketin rengini değiştirir */
+  cursor: pointer; /* Hover sırasında işaretçiyi el simgesine dönüştürür */
+}
+
+
+
+/* Flex container ayarları */
+.header-container {
+  display:flex;
+  align-items:center;  /* Dikey hizalama */
+  justify-content: space-between; /* Elemanlar arasında boşluk bırakma */
+  position: relative; /* Konumlandırma için */
+}
+
+.header-container h2 {
+  margin: 0; /* Başlığın etrafındaki varsayılan boşluğu kaldırır */
+  padding: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header-container img {
+  margin-top: 2px;
+  padding-top: 1px;
+  width: 80px;
+  height: 80px;
+  padding-left: 13px;
+  padding-right: 8px;
+  border-radius: 30%;
+}
+
+
+
+
+
+
+/* salary input genişliği artırıldı */
+input[name^="salary_"] {
+  width: 80px !important; /* Genişlik artırıldı */
+}
+
+/* bonus input genişliği daraltıldı */
+input[name^="bonus_"] {
+  width: 65px !important; /* Genişlik daraltıldı */
+}
+
+/* shift input genişliği daraltıldı */
+input[name^="shift_"] {
+  width: 26px !important; /* Genişlik daraltıldı */
+}
+
+input[name^="UBGT_"] {
+  width: 26px !important; /* Genişlik daraltıldı */
+}
+
+/* day input genişliği aynı kalabilir */
+input[name^="day_"] {
+  width: 28px !important; /* Genişlik aynı kalabilir */
+}
+
+/* arge_day input genişliği yarıya indirildi */
+input[name^="arge_day_"] {
+  width: 28px !important; /* Genişlik yarıya indirildi */
+}
+
+/* gecmis_KGVM input genişliği daraltıldı */
+input[name^="gecmis_KGVM_"] {
+  width: 70px !important; /* Genişlik daraltıldı */
+}
+
+/* Düğme (Button) Stili */
+.button-container {
+  text-align: center;
+  margin-top: 0px;
+  padding-top: 0px;
+}
+
+/* Buton Stilleri */
+/* Butonlar için genel stil tanımlamaları */
+button {
+  background-color: #007bff; /* Arka plan rengi, mavi */
+  color: white; /* Yazı rengi, beyaz */
+  border: none; /* Kenarlık kaldırılıyor */
+  padding: 10px 20px; /* İçerik boşlukları ayarlanıyor */
+  text-align: center; /* Metin ortalanıyor */
+  display: inline-block; /* Satır içi blok eleman */
+  font-size: 16px; /* Yazı boyutu */
+  margin: 4px 2px; /* Dış boşluklar ayarlanıyor */
+  cursor: pointer; /* Fare imleci, işaretçiye dönüşüyor */
+  border-radius: 8px; /* Köşeler yuvarlatılıyor */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Gölge efekti */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Geçiş animasyonu */
+}
+
+/* Buton Hover Durumu */
+/* Buton üzerine gelindiğinde stil değişiklikleri */
+button:hover {
+  background-color: #0056b3; /* Arka plan rengi daha koyu maviye dönüyor */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Gölge efekti güçleniyor */
+}
+
+/* Buton Odaklanma Durumu */
+/* Buton odaklandığında stil değişiklikleri */
+button:focus {
+  outline: none; /* Varsayılan kenar çizgisi kaldırılıyor */
+  box-shadow: 0px 0px 5px 2px rgba(0, 123, 255, 0.5); /* Mavi gölge efekti */
+}
+
+/* Buton Devre Dışı Durumu */
+/* Buton devre dışı olduğunda stil değişiklikleri */
+button:disabled {
+  background-color: grey; /* Arka plan rengi, gri */
+  color: white; /* Yazı rengi, beyaz */
+  cursor: not-allowed; /* Fare imleci, yasak işaretine dönüşüyor */
+  opacity: 0.7; /* Biraz şeffaflık ekleniyor */
+  box-shadow: none; /* Gölge efekti kaldırılıyor */
+}
+
+
+/* Hesaplama Parametreleri */
+/* Hesaplama parametreleri için esnek düzenleme */
+.Hesaplama_Parametreleri {
+  display: flex; /* Esnek kutu modeli kullanılıyor */
+  flex-wrap: wrap; /* İçerik satır kaydırması yapılıyor */
+  align-items: center; /* Dikeyde ortalanır */
+  gap: 10px; /* Elemanlar arasında boşluk */
+  justify-content: space-between; /* Aralarındaki boşluğu eşit dağıtır */
+}
+
+/* Seçim Kutusu Kaplaması */
+/* Seçim kutuları için stil düzenlemeleri */
+.select-container {
+  display: flex; /* Esnek düzen */
+  flex-direction: column; /* Dikey yerleşim */
+  margin-bottom: 10px; /* Alt boşluk */
+  width: 141px; /* Genişlik ayarı */
+}
+
+/* Seçim Kutusu Etiketi */
+/* Seçim kutusu etiketleri için stil */
+.select-container label {
+  font-size: 14.5px; /* Etiket yazı boyutu */
+  font-weight: bold; /* Yazı kalınlığı */
+}
+
+/* Seçim Kutusu Stili */
+/* Seçim kutusu için özel stil */
+.form-select {
+  border: 1px solid rgba(12, 1, 1, 0.155); /* Kenar rengi ve saydamlık */
+  font-size: 13px; /* Yazı boyutu */
+  font-weight: bolder; /* Yazı kalınlığı */
+  width: 100%; /* Genişlik yüzde 100 */
+}
+
+
+.image-container {
+  margin-left: auto; /* Resmi en sağa alır */
+  padding-right: 110px; /* Sağdan biraz boşluk bırakır */
+}
+
+
+@media (max-width: 768px) {
+  .select-container {
+      flex: 1 1 50%; /* Orta boyutlu ekranlarda iki sütun olarak hizalanır */
+      margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .select-container {
+      flex: 1 1 100%; /* Küçük ekranlarda tam genişlik alır ve alt alta geçer */
+      margin-bottom: 10px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* TABLO ODAKLANMA */
+/* Onay kutusuna odaklanıldığında stil değişiklikleri */
+.form-check-input:checked:hover {
+  background-color: #262524; /* Arka plan rengi koyulaşıyor */
+  border-color: #0056b3; /* Kenar rengi koyu maviye dönüyor */
+}
+
+/* Satır vurgulama (Hover) */
+/* Tablo satırları üzerine gelindiğinde arka plan rengi değişiyor */
+.table-container table tr:hover {
+  background-color: #4793da; /* Açık mavi arka plan rengi */
+}
+
+/* Ay Sütunu Vurgulama */
+/* Ay sütunları üzerine gelindiğinde stil değişiklikleri */
+.table-container table td.month:hover,
+.table-container table td.month:hover ~ td {
+  background-color: #3d94e0; /* Açık mavi arka plan rengi */
+}
+
+/* Geçiş Animasyonu */
+/* Tablolarda renk geçişi için animasyon ayarları */
+.table-container table td {
+  transition: background-color 0.3s ease; /* Renk değişim animasyonu */
+}
+  
+.grand_total {
+  font-size: 10px;
+  font-weight: bolder;
+  color: #265b6b;
+  background-color: #f7f7f7;
+  top: 5px;
+  margin-right: 0;
+  padding-right: 0;
+}
+.total {
+  background-color: #f7f7f7;
+}
+.grand_mean {
+  font-size: 10px;
+  font-weight: bolder;
+  color: #756833;
+  background-color: #f7f7f7;
+  top: 5px;
+  margin-right: 0;
+  padding-right: 0;
+}
+
+
+
+
+
+
+
+
+
