@@ -1,0 +1,128 @@
+{% extends 'layout.html' %}
+{% load custom_filters %}
+
+
+{% block title %}Maaş Hesaplama{% endblock %}
+
+{% block header %}Maaş Hesaplama{% endblock %}
+
+{% block excel_indir %}
+  <div class="image-container" style="margin-left: auto; padding-right: 10px;"></div>
+{% endblock excel_indir %}
+
+{% block form_action %}{% url 'process_salary_form' %}?submitted=true{% endblock %}
+
+
+{% block table_rows %}
+  {% for month, index in month_names %}
+    <tr>
+      <td scope="row" class="month">{{ month }}</td>
+
+      <td class="td_salary">
+        <input type="text" name="salary_{{ index }}" maxlength="9" 
+          value="{{ ucret_listesi_forms|get_item:index|default:'' }}"
+          autocomplete="off"
+          class="input_salary" 
+          data-salary 
+          data-month="{{ index }}" 
+          data-period="{% if forloop.counter <= 6 %}Birinci_Donem{% else %}Ikinci_Donem{% endif %}"  
+          data-param="Net_Asgari_Ucret">
+      </td>
+      
+      <td>
+        <input type="text" name="bonus_{{ index }}" maxlength="6" 
+          value="{{ prim_listesi_forms|get_item:index|default:'' }}"
+          autocomplete="off"
+          class="input_salary">
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="shift_{{ index }}" maxlength="3" 
+          value="{{ fm_listesi_forms|get_item:index|default:'' }}"
+          class="bonus"
+          autocomplete="off"
+          {% if shift_disabled_list|get_item:index %}disabled{% endif %}>
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="UBGT_{{ index }}" maxlength="3" 
+          value="{{ ubgt_listesi_forms|get_item:index|default:'' }}"
+          class="bonus"
+          autocomplete="off"
+          {% if UBGT_disabled_list|get_item:index %}disabled{% endif %}>
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="day_{{ index }}" maxlength="2" 
+          value="{{ sgkgun_listesi_forms|get_item:index|default:'30' }}"
+          autocomplete="off"
+          class="bonus">
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="arge_day_{{ index }}" maxlength="2" 
+          value="{{ argegun_listesi_forms|get_item:index|default:'' }}"
+          id="arge_day_{{ index }}"
+          data-default-yeralti="{{ argegun_listesi_forms|get_item:index|default:'' }}"
+          autocomplete="off"
+          class="bonus"
+          {% if arge_day_disabled_list|get_item:index %}disabled{% endif %}>
+      </td>
+
+      <td>
+        <input type="text" name="gecmis_KGVM_{{ index }}" maxlength="7" 
+          value="{{ KGVM_listesi_forms|get_item:index|default:'' }}"
+          autocomplete="off"
+          class="input_gecmis_kgvm">
+      </td>
+      <!-- Diğer hesaplamalar ve veriler -->
+      <td>
+        <span class="Brut_Top">0,00</span>
+      </td>
+      <td>
+        <span class="Gunluk_Brut_Ucrt">0,00</span>
+      </td>
+      <td> 
+        <span class="SGK_Matrah">0,00</span>
+      </td>
+      <td>
+        <span class="Isci_SGK">0,00</span>
+      </td>
+      <td>
+        <span class="Isci_Issizlik">0,00</span>
+      </td>
+      <td>
+        <span class="Damga_Vergisi">0,00</span>
+      </td>
+      <td>
+        <span class="KGVM">0,00</span>
+      </td>
+      <td>
+        <span class="GVM">0,00</span>
+      </td>
+      <td>
+        <span class="GV">0,00</span>
+      </td>
+      <td>
+        <span class="Net_Salary">0,00</span>
+      </td>
+      <td>
+        <span class="AGI">0,00</span>
+      </td>
+      <td>
+        <span class="Maas">0,00</span>
+      </td>
+      <td>
+        <span class="Isveren_SGK">0,00</span>
+      </td>
+      <td>
+        <span class="Isveren_Issizlik">0,00</span>
+      </td>
+      <td>
+        <span class="Tomlam_Maliyet">0,00</span>
+      </td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+                    

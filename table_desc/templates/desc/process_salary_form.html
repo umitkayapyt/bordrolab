@@ -1,0 +1,259 @@
+{% extends 'layout.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block title %}Bordro Detay{% endblock %}
+{% block header %}Bordro Detay{% endblock %}
+
+{% block excel_indir %}
+  <div class="image-container" style="margin-left: auto; padding-right: 20px;">
+    <a href="javascript:void(0);" onclick="exportToExcel();">
+        <img style="width: 30px; height: 30px;" src="{% static 'img/excell.jpeg' %}" alt="indir" />
+    </a>
+  </div>
+{% endblock excel_indir %}
+
+{% block form_action %}{% url 'process_salary_form' %}?submitted=true{% endblock %}
+
+{% block basliklar %}
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">Normal</span> <span>Maliyet</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">Hazine</span> <span>İndirimi</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">İndirimli</span> <span>Maliyet</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">Vergi</span> <span>Ödenecek</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">Normal SGK</span> <span>Ödenecek</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">İndirimli SGK</span> <span>Ödenecek</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">İstisna</span> <span>GV</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">İstisna</span> <span>DV</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;"></span> <span>ASG GVM</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">KUM</span> <span>ASG GV</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">2 Ay Önceki</span> <span>Devir SGK</span></th>
+  <th scope="col" class="baslik" style="width: 70px;"><span style="display: block;">1 Ay Önceki</span> <span>Devir SGK</span></th>
+{% endblock basliklar %}
+
+{% block table_rows %}
+  {% for month_data, bordro in combined_list %}
+    <tr>
+      <td scope="row" class="month">{{ month_data.0 }}</td>
+
+      <td class="td_salary">
+        <input type="text" name="salary_{{ month_data.1 }}" maxlength="9" 
+          value="{{ ucret_listesi_forms|get_item:month_data.1|default:'' }}"
+          autocomplete="off"
+          class="input_salary" 
+          data-salary 
+          data-month="{{ month_data.1 }}" 
+          data-period="{% if forloop.counter <= 6 %}Birinci_Donem{% else %}Ikinci_Donem{% endif %}" 
+          data-param="Net_Asgari_Ucret">
+      </td>
+      
+      <td>
+        <input type="text" name="bonus_{{ month_data.1 }}" maxlength="6" 
+          value="{{ prim_listesi_forms|get_item:month_data.1|default:'' }}"
+          autocomplete="off"
+          class="input_salary">
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="shift_{{ month_data.1 }}" maxlength="3" 
+          value="{{ fm_listesi_forms|get_item:month_data.1|default:'' }}"
+          autocomplete="off"
+          class="bonus"
+          {% if shift_disabled_list|get_item:month_data.1 %}disabled{% endif %}>
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="UBGT_{{ month_data.1 }}" maxlength="3" 
+          value="{{ ubgt_listesi_forms|get_item:month_data.1|default:'' }}"
+          autocomplete="off"
+          class="bonus"
+          {% if UBGT_disabled_list|get_item:month_data.1 %}disabled{% endif %}>
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="day_{{ month_data.1 }}" maxlength="2" 
+          value="{{ sgkgun_listesi_forms|get_item:month_data.1|default:'30' }}"
+          autocomplete="off"
+          class="bonus">
+      </td>
+
+      <td class="bonus-container">
+        <input type="text" name="arge_day_{{ month_data.1 }}" maxlength="2" 
+          value="{{ argegun_listesi_forms|get_item:month_data.1|default:'' }}"
+          id="arge_day_{{ month_data.1 }}"
+          data-default-yeralti="{{ argegun_listesi_forms|get_item:month_data.1|default:'' }}"
+          autocomplete="off"
+          class="bonus"
+          {% if arge_day_disabled_list|get_item:month_data.1 %}disabled{% endif %}>
+      </td>
+
+      <td>
+        <input type="text" name="gecmis_KGVM_{{ month_data.1 }}" maxlength="7" 
+          value="{{ KGVM_listesi_forms|get_item:month_data.1|default:'' }}"
+          autocomplete="off"
+          class="input_gecmis_kgvm">
+      </td>
+    
+      <!-- Diğer hesaplamalar ve veriler -->
+  
+      <td>
+        <span id="Brut_Top_{{ forloop.counter }}" class="Brut_Top">{{ bordro.Donem_Brut_Toplam|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Gunluk_Brut_Ucrt_{{ forloop.counter }}"  
+        class="Gunluk_Brut_Ucrt"
+        data-period="{% if forloop.counter <= 6 %}Birinci_Donem{% else %}Ikinci_Donem{% endif %}">
+        {{ bordro.Gunluk_Brut_Ucret|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="SGK_Matrah_{{ forloop.counter }}"  class="SGK_Matrah">{{ bordro.SGK_matrah|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Isci_SGK_{{ forloop.counter }}"  class="Isci_SGK">{{ bordro.Isci_SGK|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Isci_Issizlik_{{ forloop.counter }}"  class="Isci_Issizlik">{{ bordro.Isci_Issizlik|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Damga_Vergisi_{{ forloop.counter }}"  class="Damga_Vergisi">{{ bordro.damga_vergisi|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="KGVM_{{ forloop.counter }}"  class="KGVM">{{ bordro.KGVM|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="GVM_{{ forloop.counter }}"  class="GVM">{{ bordro.GVM|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="GV_{{ forloop.counter }}"  class="GV">{{ bordro.gelir_vergisi|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Net_Salary_{{ forloop.counter }}"  class="Net_Salary">{{ bordro.Net_Ucret|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="AGI_{{ forloop.counter }}"  class="AGI">{{ bordro.agi|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Maas_{{ forloop.counter }}"  class="Maas">{{ bordro.Maas|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Isveren_SGK_{{ forloop.counter }}"  class="Isveren_SGK">{{ bordro.Isveren_SGK|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Isveren_Issizlik_{{ forloop.counter }}"  class="Isveren_Issizlik">{{ bordro.Isveren_Issizlik|intcomma_dot }}</span>
+      </td>
+      <td><span id="Toplam_Maliyet_{{ forloop.counter }}"  class="Toplam_Maliyet">{{ bordro.Hazine_Indirimi_Sonrasi_Maliyet|intcomma_dot }}</span></td>
+      
+      <td>
+        <span id="Normal_Maliyet_{{ forloop.counter }}"  class="Normal_Maliyet">{{ bordro.Normal_Maliyet|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Hazine_İndirimi_{{ forloop.counter }}"  class="Hazine_İndirimi">{{ bordro.Hazine_yardimi|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Hazine_İndirimi_Sonrasi_Maliyet_{{ forloop.counter }}"  class="Hazine_İndirimi_Sonrasi_Maliyet">{{ bordro.Hazine_Indirimi_Sonrasi_Maliyet|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Odenecek_Vergi_{{ forloop.counter }}"  class="Odenecek_Vergi">{{ bordro.Vergi_Odenecek|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Normal_SGK_Odenecek_{{ forloop.counter }}"  class="Normal_SGK_Odenecek">{{ bordro.Normal_SGK_Odenecek|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Indirim_Sonrasi_SGK_Odenecek_{{ forloop.counter }}"  class="Indirim_Sonrasi_SGK_Odenecek">{{ bordro.Hazine_Indirimi_Sonrasi_SGK_Odenecek|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="GV_Istisna_{{ forloop.counter }}"  class="GV_Istisna">{{ bordro.GV_Istisna|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="DV_Istisna_{{ forloop.counter }}"  class="DV_Istisna">{{ bordro.DV_Istisna|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="ASG_Gvm_{{ forloop.counter }}"  class="ASG_Gvm">{{ bordro.Asg_GVM|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="Kum_ASG_GV_{{ forloop.counter }}"  class="Kum_ASG_GV">{{ bordro.Kum_Asg_GV|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="2_Ay_Onceki_Devir_{{ forloop.counter }}"  class="2_Ay_Onceki_Devir">{{ bordro.IkiAyOncekiDevir|intcomma_dot }}</span>
+      </td>
+      <td>
+        <span id="1_Ay_Onceki_Devir_{{ forloop.counter }}"  class="1_Ay_Onceki_Devir">{{ bordro.BirAyOncekiDevir|intcomma_dot }}</span>
+      </td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+{% block grand_total_rows %}
+  <td class="total">
+    <span class="grand_total" id="Normal_Maliyet_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="Hazine_İndirimi_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="Hazine_İndirimi_Sonrasi_Maliyet_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="Odenecek_Vergi_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="Normal_SGK_Odenecek_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="Indirim_Sonrasi_SGK_Odenecek_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="GV_Istisna_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="DV_Istisna_total">0,00</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="">-</span></td>
+  <td class="total"><span class="grand_total" id="">-</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="">-</span>
+  </td>
+  <td class="total">
+    <span class="grand_total" id="">-</span>
+  </td>
+{% endblock grand_total_rows %}
+
+{% block grand_mean_rows %}
+  <td class="total" >
+    <span class="grand_mean" id="Normal_Maliyet_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="Hazine_İndirimi_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="Hazine_İndirimi_Sonrasi_Maliyet_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="Odenecek_Vergi_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="Normal_SGK_Odenecek_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="Indirim_Sonrasi_SGK_Odenecek_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="GV_Istisna_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="DV_Istisna_mean">0,00</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="">-</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="">-</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="">-</span>
+  </td>
+  <td class="total" >
+    <span class="grand_mean" id="">-</span>
+  </td>
+{% endblock grand_mean_rows %}
